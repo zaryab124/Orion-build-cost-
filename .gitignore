@@ -1,0 +1,5 @@
+node_modules/
+storage/quotes/*
+data/quotes/*
+!storage/quotes/.gitkeep
+!data/quotes/.gitkeep

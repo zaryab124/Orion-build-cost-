@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Request a formal construction cost estimate or Bill of Quantities quotation from Orion Build Cost UK. Upload architectural plans and receive itemised proposals.">
+  <meta name="theme-color" content="#0B2545">
+  <title>Request a Project Quotation | Orion Build Cost</title>
+
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar-content">
+      <div class="topbar-left">
+        <a href="tel:+442079460850" class="topbar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          <span>+44 (0) 20 7946 0850</span>
+        </a>
+        <a href="mailto:enquiries@orionbuildcost.co.uk" class="topbar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+          <span>enquiries@orionbuildcost.co.uk</span>
+        </a>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-badge">Official UK Quotation Portal</span>
+        <span class="topbar-item">London • Manchester • Nationwide</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="index.html" class="nav-brand">
+        <div class="logo-container">
+          <img src="assets/images/logo-transparent.png" alt="Orion Build Cost Logo" class="brand-logo-img">
+        </div>
+        <div class="brand-meta">
+          <span class="brand-title">Orion <span>Build Cost</span></span>
+          <span class="brand-sub">Cost Estimation Experts</span>
+        </div>
+      </a>
+
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="services/quantity-take-offs.html" class="nav-link">Services</a>
+        <a href="estimator.html" class="nav-link">Estimating Engine</a>
+        <a href="boq-builder.html" class="nav-link">BOQ Builder</a>
+        <a href="portfolio.html" class="nav-link">Portfolio</a>
+        <a href="quote.html" class="nav-link active">Request a Quote</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="estimator.html" class="btn btn-secondary btn-sm">Try Estimator</a>
+        <button class="menu-toggle" aria-label="Toggle navigation menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumb-nav">
+    <div class="container">
+      <ul class="breadcrumbs">
+        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li class="breadcrumb-item active" aria-current="page">Request a Quote</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Multi-Step Wizard Section -->
+  <section class="section" style="padding-top:40px;">
+    <div class="container" style="max-width:960px;">
+      <div class="section-header" style="margin-bottom:36px;">
+        <span class="section-pill">Project Quotation Portal</span>
+        <h1 class="section-title">Request a Project Quotation</h1>
+        <p class="section-subtitle">
+          Submit your project details and upload architectural plans for a detailed, itemised quotation and delivery schedule.
+        </p>
+      </div>
+
+      <!-- Multi-Step Progress Header -->
+      <div class="wizard-progress">
+        <div class="wizard-progress-bar" id="progressBar"></div>
+
+        <div class="wizard-step active" data-step="1" id="stepIndicator1">
+          <div class="wizard-circle">1</div>
+          <span class="wizard-step-label">Contact</span>
+        </div>
+
+        <div class="wizard-step" data-step="2" id="stepIndicator2">
+          <div class="wizard-circle">2</div>
+          <span class="wizard-step-label">Scope</span>
+        </div>
+
+        <div class="wizard-step" data-step="3" id="stepIndicator3">
+          <div class="wizard-circle">3</div>
+          <span class="wizard-step-label">Drawings</span>
+        </div>
+
+        <div class="wizard-step" data-step="4" id="stepIndicator4">
+          <div class="wizard-circle">4</div>
+          <span class="wizard-step-label">Review</span>
+        </div>
+      </div>
+
+      <!-- Main Form Container -->
+      <div class="quote-form-card" style="position:relative;">
+        <div id="formErrorMessage" style="display:none;background:rgba(239,68,68,0.15);border:1px solid #EF4444;color:#FCA5A5;padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:0.875rem;"></div>
+
+        <form id="multiStepQuoteForm">
+
+          <!-- STEP 1: Contact Information -->
+          <div class="wizard-pane active" id="paneStep1">
+            <h3 style="font-family:var(--font-heading);font-size:1.3rem;margin-bottom:20px;color:#fff;">
+              Step 1: Contact Information
+            </h3>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="qFullName">Full Name *</label>
+                <input type="text" id="qFullName" class="form-input" placeholder="e.g. David Richardson" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="qCompany">Business / Company Name <span style="font-weight:normal;color:#94A3B8;">(Optional)</span></label>
+                <input type="text" id="qCompany" class="form-input" placeholder="e.g. Apex Developments UK">
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="qEmail">Email Address *</label>
+                <input type="email" id="qEmail" class="form-input" placeholder="e.g. d.richardson@company.co.uk" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="qPhone">Phone Number <span style="font-weight:normal;color:#94A3B8;">(Optional)</span></label>
+                <input type="tel" id="qPhone" class="form-input" placeholder="e.g. +44 7700 900077">
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;margin-top:20px;">
+              <button type="button" class="btn btn-primary" id="btnNext1">Continue to Project Scope &rarr;</button>
+            </div>
+          </div>
+
+          <!-- STEP 2: Project Scope & Location -->
+          <div class="wizard-pane" id="paneStep2">
+            <h3 style="font-family:var(--font-heading);font-size:1.3rem;margin-bottom:20px;color:#fff;">
+              Step 2: Project Scope &amp; Location
+            </h3>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="qProjectType">Project Type *</label>
+                <select id="qProjectType" class="form-select" required>
+                  <option value="" disabled selected>Select project type...</option>
+                  <option value="Residential New Build">Residential New Build</option>
+                  <option value="Residential Extension">Residential Extension</option>
+                  <option value="Whole-House Renovation">Whole-House Renovation</option>
+                  <option value="Loft Conversion">Loft Conversion</option>
+                  <option value="Commercial Office / Fit-Out">Commercial Office / Fit-Out</option>
+                  <option value="Retail / Plaza Development">Retail / Plaza Development</option>
+                  <option value="Industrial / Warehouse">Industrial / Warehouse</option>
+                  <option value="Other / Bespoke Scheme">Other / Bespoke Scheme</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="qUkCountry">UK Country *</label>
+                <select id="qUkCountry" class="form-select" required>
+                  <option value="England" selected>England</option>
+                  <option value="Scotland">Scotland</option>
+                  <option value="Wales">Wales</option>
+                  <option value="Northern Ireland">Northern Ireland</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="qPostcode">Project Postcode *</label>
+                <input type="text" id="qPostcode" class="form-input" placeholder="e.g. SW1A 1AA or M3 3AP" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="qApproxSize">Approximate Project Size <span style="font-weight:normal;color:#94A3B8;">(Optional)</span></label>
+                <input type="text" id="qApproxSize" class="form-input" placeholder="e.g. 180 m² or 4 storeys">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Required Service(s) *</label>
+              <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:10px;margin-top:6px;">
+                <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;cursor:pointer;">
+                  <input type="checkbox" name="services" value="Quantity Take-Offs" checked>
+                  <span>Quantity Take-Offs</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;cursor:pointer;">
+                  <input type="checkbox" name="services" value="Bill of Quantities (BOQ)" checked>
+                  <span>Bill of Quantities (BOQ)</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;cursor:pointer;">
+                  <input type="checkbox" name="services" value="Construction Cost Estimation">
+                  <span>Construction Cost Estimation</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;cursor:pointer;">
+                  <input type="checkbox" name="services" value="Tender Pricing & Review">
+                  <span>Tender Pricing &amp; Review</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;cursor:pointer;">
+                  <input type="checkbox" name="services" value="Residential Estimating">
+                  <span>Residential Estimating</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;cursor:pointer;">
+                  <input type="checkbox" name="services" value="Commercial Estimating">
+                  <span>Commercial Estimating</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="qDeadline">Requested Quote Deadline <span style="font-weight:normal;color:#94A3B8;">(Optional)</span></label>
+                <input type="date" id="qDeadline" class="form-input">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="qDescription">Project Scope &amp; Key Details *</label>
+              <textarea id="qDescription" class="form-input" rows="4" placeholder="Describe the proposed works, architectural state (planning approved, building regs, or conceptual), and specific packages required..." required></textarea>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;margin-top:20px;">
+              <button type="button" class="btn btn-secondary" id="btnBack2">&larr; Back</button>
+              <button type="button" class="btn btn-primary" id="btnNext2">Continue to Drawings &rarr;</button>
+            </div>
+          </div>
+
+          <!-- STEP 3: Drawings & Attachments -->
+          <div class="wizard-pane" id="paneStep3">
+            <h3 style="font-family:var(--font-heading);font-size:1.3rem;margin-bottom:10px;color:#fff;">
+              Step 3: Drawings &amp; File Attachments
+            </h3>
+            <p style="font-size:0.875rem;color:#94A3B8;margin-bottom:20px;">
+              Upload architectural plans, elevations, structural engineering drawings or specifications (PDF, DWG, DXF, PNG, JPG, ZIP). Maximum 25 MB per file.
+            </p>
+
+            <div class="file-dropzone" id="quoteDropzone">
+              <input type="file" id="quoteFileInput" class="dropzone-input" multiple accept=".pdf,.dwg,.dxf,.png,.jpg,.jpeg,.zip">
+              <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <div class="dropzone-title">Drag &amp; drop construction drawings here, or click to browse</div>
+              <div class="dropzone-subtitle">Supported: PDF, DWG, DXF, ZIP, PNG, JPG</div>
+            </div>
+
+            <!-- Uploaded Files Preview -->
+            <div class="file-preview-list" id="quotePreviewList"></div>
+
+            <!-- Privacy Notice Acknowledgement -->
+            <div style="background:rgba(255,255,255,0.03);border:1px solid var(--slate-border);border-radius:8px;padding:16px;margin:24px 0 16px;">
+              <label style="display:flex;align-items:flex-start;gap:10px;font-size:0.8125rem;color:#CBD5E1;cursor:pointer;">
+                <input type="checkbox" id="qPrivacyConsent" required style="margin-top:3px;">
+                <span>
+                  <strong>Privacy Notice:</strong> I understand that my uploaded plans and contact information will be used by Orion Build Cost solely to prepare and deliver the requested construction quotation. Files are stored securely and never shared with unverified third parties. *
+                </span>
+              </label>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;margin-top:20px;">
+              <button type="button" class="btn btn-secondary" id="btnBack3">&larr; Back</button>
+              <button type="button" class="btn btn-primary" id="btnNext3">Review Submission &rarr;</button>
+            </div>
+          </div>
+
+          <!-- STEP 4: Review Before Submit -->
+          <div class="wizard-pane" id="paneStep4">
+            <h3 style="font-family:var(--font-heading);font-size:1.3rem;margin-bottom:20px;color:#fff;">
+              Step 4: Review Before Submission
+            </h3>
+
+            <!-- Review Summary Blocks -->
+            <div class="review-summary-card">
+              <div class="review-section-header">
+                <span style="font-weight:700;color:#fff;">Contact Information</span>
+                <span class="review-edit-link" id="editContact">Edit</span>
+              </div>
+              <div class="review-row">
+                <span class="review-label">Full Name:</span>
+                <span class="review-value" id="revFullName">-</span>
+              </div>
+              <div class="review-row">
+                <span class="review-label">Company:</span>
+                <span class="review-value" id="revCompany">-</span>
+              </div>
+              <div class="review-row">
+                <span class="review-label">Email:</span>
+                <span class="review-value" id="revEmail">-</span>
+              </div>
+              <div class="review-row">
+                <span class="review-label">Phone:</span>
+                <span class="review-value" id="revPhone">-</span>
+              </div>
+            </div>
+
+            <div class="review-summary-card">
+              <div class="review-section-header">
+                <span style="font-weight:700;color:#fff;">Project Scope &amp; Location</span>
+                <span class="review-edit-link" id="editScope">Edit</span>
+              </div>
+              <div class="review-row">
+                <span class="review-label">Project Type:</span>
+                <span class="review-value" id="revProjectType">-</span>
+              </div>
+              <div class="review-row">
+                <span class="review-label">Location:</span>
+                <span class="review-value" id="revLocation">-</span>
+              </div>
+              <div class="review-row">
+                <span class="review-label">Required Services:</span>
+                <span class="review-value" id="revServices">-</span>
+              </div>
+              <div class="review-row">
+                <span class="review-label">Approx Size:</span>
+                <span class="review-value" id="revSize">-</span>
+              </div>
+              <div class="review-row">
+                <span class="review-label">Requested Deadline:</span>
+                <span class="review-value" id="revDeadline">-</span>
+              </div>
+              <div class="review-row" style="flex-direction:column;gap:4px;margin-top:6px;">
+                <span class="review-label">Scope Description:</span>
+                <span class="review-value" id="revDescription" style="max-width:100%;text-align:left;color:#94A3B8;">-</span>
+              </div>
+            </div>
+
+            <div class="review-summary-card">
+              <div class="review-section-header">
+                <span style="font-weight:700;color:#fff;">Attached Drawings</span>
+                <span class="review-edit-link" id="editFiles">Edit</span>
+              </div>
+              <div id="revFilesList" style="font-size:0.875rem;color:#CBD5E1;">None attached</div>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;margin-top:24px;">
+              <button type="button" class="btn btn-secondary" id="btnBack4">&larr; Back</button>
+              <button type="submit" class="btn btn-gold btn-lg" id="btnSubmitQuote">
+                <span>Confirm &amp; Submit Project Information</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 5: Success Confirmation (Revealed Only Upon 200 OK Response) -->
+          <div class="wizard-pane" id="paneStep5" style="text-align:center;padding:40px 20px;">
+            <div style="width:72px;height:72px;border-radius:50%;background:rgba(16,185,129,0.15);color:#10B981;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+
+            <h2 style="font-family:var(--font-heading);font-size:1.8rem;color:#fff;margin-bottom:10px;">
+              Quotation Request Received
+            </h2>
+            <p style="font-size:0.95rem;color:#94A3B8;max-width:540px;margin:0 auto 20px;line-height:1.5;">
+              Thank you for submitting your project information. Your quotation request has been securely registered with reference code:
+            </p>
+
+            <div style="display:inline-block;background:rgba(0,194,255,0.1);border:1px solid rgba(0,194,255,0.3);padding:10px 24px;border-radius:8px;font-family:monospace;font-size:1.4rem;font-weight:700;color:var(--cyan-accent);margin-bottom:24px;" id="confirmedRefCode">
+              OBC-2026-XXXX
+            </div>
+
+            <div style="background:rgba(255,255,255,0.03);border:1px solid var(--slate-border);border-radius:10px;padding:20px;max-width:600px;margin:0 auto 28px;text-align:left;font-size:0.875rem;color:#CBD5E1;">
+              <strong style="color:#fff;display:block;margin-bottom:8px;">Next Steps:</strong>
+              <ul style="display:flex;flex-direction:column;gap:6px;padding-left:18px;list-style:disc;">
+                <li>Our senior Quantity Surveyors will review your architectural drawings and scope requirements.</li>
+                <li>You will receive a formal itemised quotation and estimated delivery timeframe via email.</li>
+                <li>Please quote reference code <strong id="refCodeInline" style="color:var(--cyan-accent);">OBC-2026-XXXX</strong> in any telephone or email correspondence.</li>
+              </ul>
+            </div>
+
+            <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;">
+              <a href="index.html" class="btn btn-secondary">Return to Homepage</a>
+              <a href="estimator.html" class="btn btn-primary">Try Interactive Estimator</a>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div>&copy; 2026 Orion Build Cost Ltd. Registered in England &amp; Wales.</div>
+        <div class="footer-bottom-links">
+          <a href="index.html" class="footer-link">Home</a>
+          <a href="services/quantity-take-offs.html" class="footer-link">Services</a>
+          <a href="quote.html" class="footer-link">Quote Portal</a>
+          <a href="estimator.html" class="footer-link">Estimator</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="quote.js"></script>
+</body>
+</html>

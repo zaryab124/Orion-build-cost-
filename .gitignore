@@ -1,8 +1,33 @@
+# Dependencies
 node_modules/
-storage/quotes/*
-data/quotes/*
+
+# Local databases and locks
 data/orion.db*
+
+# Client file uploads and drawings (Never commit private CAD/PDF files)
+storage/quotes/*
 storage/drawings/*
+data/quotes/*
 !storage/quotes/.gitkeep
-!data/quotes/.gitkeep
 !storage/drawings/.gitkeep
+!data/quotes/.gitkeep
+
+# Environment and secrets (Never commit production credentials)
+.env
+.env.*
+!.env.example
+
+# Vercel and build artifacts
+.vercel/
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System files
+.DS_Store
+Thumbs.db

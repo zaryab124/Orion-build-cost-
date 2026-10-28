@@ -16,6 +16,9 @@
   "author": "Orion Build Cost Ltd",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "dependencies": {
     "exceljs": "^4.4.0"
   }

@@ -246,11 +246,27 @@ function resetPasswordWithToken(token, newPassword) {
  * Seed initial administrative and demo accounts if they do not exist
  */
 function seedInitialUsers() {
-  const adminEmail = 'admin@orionbuildcost.co.uk';
+  if (process.env.NODE_ENV === 'production' && process.env.ORION_SEED_DEMO_ACCOUNTS === 'false') {
+    // In production without demo accounts, seed custom production admin if configured
+    if (process.env.ORION_ADMIN_EMAIL && process.env.ORION_ADMIN_PASSWORD) {
+      const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(process.env.ORION_ADMIN_EMAIL);
+      if (!existing) {
+        const hash = hashPassword(process.env.ORION_ADMIN_PASSWORD);
+        db.prepare(`
+          INSERT INTO users (email, password_hash, role, full_name, company_name)
+          VALUES (?, ?, 'admin', 'Production Director', 'Orion Build Cost Ltd')
+        `).run(process.env.ORION_ADMIN_EMAIL, hash);
+      }
+    }
+    return;
+  }
+
+  const adminEmail = process.env.ORION_ADMIN_EMAIL || 'admin@orionbuildcost.co.uk';
   const existingAdmin = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
 
   if (!existingAdmin) {
-    const adminHash = hashPassword('OrionAdmin2026!');
+    const adminPass = process.env.ORION_ADMIN_PASSWORD || 'OrionAdmin2026!';
+    const adminHash = hashPassword(adminPass);
     db.prepare(`
       INSERT INTO users (email, password_hash, role, full_name, company_name, phone)
       VALUES (?, ?, 'admin', 'Orion Senior Director', 'Orion Build Cost Ltd', '+44 20 7946 0850')

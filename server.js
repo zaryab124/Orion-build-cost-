@@ -10,9 +10,9 @@ const drawingEngine = require('./drawing-engine.js');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.resolve(__dirname);
-const STORAGE_DIR = path.join(__dirname, 'storage', 'quotes');
-const DRAWINGS_DIR = path.join(__dirname, 'storage', 'drawings');
-const DATA_DIR = path.join(__dirname, 'data', 'quotes');
+const STORAGE_DIR = process.env.ORION_STORAGE_DIR || path.join(__dirname, 'storage', 'quotes');
+const DRAWINGS_DIR = process.env.ORION_DRAWINGS_DIR || path.join(__dirname, 'storage', 'drawings');
+const DATA_DIR = process.env.ORION_DATA_DIR || path.join(__dirname, 'data', 'quotes');
 
 fs.mkdirSync(STORAGE_DIR, { recursive: true });
 fs.mkdirSync(DRAWINGS_DIR, { recursive: true });
@@ -67,7 +67,8 @@ const analyticsStore = {
 };
 
 const server = http.createServer(async (req, res) => {
-  const clientIp = req.socket.remoteAddress || '127.0.0.1';
+  try {
+    const clientIp = req.socket.remoteAddress || '127.0.0.1';
 
   // Helper JSON sender
   function sendJson(statusCode, data) {
@@ -835,6 +836,21 @@ const server = http.createServer(async (req, res) => {
       fs.createReadStream(filePath).pipe(res);
     }
   });
+  } catch (err) {
+    console.error('Unhandled request error:', err);
+    if (!res.headersSent) {
+      res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ success: false, error: 'Internal server error occurred.' }));
+    }
+  }
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception thrown:', err);
 });
 
 if (require.main === module) {

@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard &amp; Analytics | Orion Build Cost — Internal Management</title>
+  <meta name="description" content="Orion Build Cost internal administration dashboard. Manage customer enquiries, project quotes, revisions, internal QS notes, and construction pricing governance.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* Admin Console Luxury Styling */
+    .admin-topbar {
+      background: linear-gradient(90deg, #050E1A, #0B2545);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+      padding: 10px 0;
+      font-size: 0.85rem;
+    }
+    .admin-badge {
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-accent);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .admin-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid var(--slate-border);
+      margin-bottom: 25px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .admin-tab-btn {
+      background: transparent;
+      color: var(--slate-light);
+      padding: 12px 18px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+    }
+    .admin-tab-btn:hover {
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .admin-tab-btn.active {
+      color: var(--gold-accent);
+      border-bottom: 3px solid var(--gold-accent);
+      background: rgba(212, 175, 55, 0.06);
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 18px;
+      margin-bottom: 30px;
+    }
+    .kpi-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--slate-border);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+    }
+    .kpi-label {
+      font-size: 0.8rem;
+      color: var(--slate-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .kpi-val {
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .kpi-sub {
+      font-size: 0.75rem;
+      color: var(--gold-accent);
+      margin-top: 4px;
+    }
+    .admin-table-container {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--slate-border);
+      border-radius: 12px;
+      overflow-x: auto;
+      margin-bottom: 30px;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+    .admin-table th {
+      background: rgba(11, 37, 69, 0.6);
+      padding: 12px 16px;
+      color: var(--slate-light);
+      font-weight: 600;
+      border-bottom: 1px solid var(--slate-border);
+      white-space: nowrap;
+    }
+    .admin-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #E2E8F0;
+    }
+    .admin-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 16px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .status-new { background: rgba(0, 194, 255, 0.15); color: #38bdf8; border: 1px solid rgba(0, 194, 255, 0.3); }
+    .status-under_review { background: rgba(212, 175, 55, 0.15); color: #facc15; border: 1px solid rgba(212, 175, 55, 0.3); }
+    .status-awaiting_information { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
+    .status-quote_preparation { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .status-quote_sent { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .status-accepted { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .status-declined { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .status-completed { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+
+    /* Modal / Drawer */
+    .admin-modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(5, 14, 26, 0.88);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+    .admin-drawer {
+      background: var(--navy-darker);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+      border-radius: 16px;
+      max-width: 650px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 30px;
+      position: relative;
+    }
+    .internal-notes-box {
+      background: rgba(249, 115, 22, 0.06);
+      border: 1px solid rgba(249, 115, 22, 0.3);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 18px;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--slate-border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: var(--white);
+      font-size: 0.85rem;
+      min-width: 240px;
+    }
+    .search-input:focus {
+      border-color: var(--gold-accent);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="topbar admin-topbar">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <div>
+        <span class="admin-badge">Admin Workspace</span>
+        <span style="color:#CBD5E1; margin-left:10px; font-size:0.85rem;">Enquiry Governance &amp; Pricing Management</span>
+      </div>
+      <div>
+        <span style="color:var(--slate-light); font-size:0.8rem;">Confidential Internal Access</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="index.html" class="nav-brand">
+        <div class="logo-container">
+          <img src="assets/images/logo-transparent.png" alt="Orion Build Cost Logo" class="brand-logo-img">
+        </div>
+        <div class="brand-meta">
+          <span class="brand-title">Orion <span>Build Cost</span></span>
+          <span class="brand-sub">Administration Console</span>
+        </div>
+      </a>
+
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="estimator.html" class="nav-link">Estimator</a>
+        <a href="boq-builder.html" class="nav-link">BOQ Builder</a>
+        <a href="drawing-workspace.html" class="nav-link">Take-Off Workspace</a>
+        <a href="portal.html" class="nav-link">Client Portal</a>
+        <a href="admin.html" class="nav-link active">Admin</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div id="adminAuthNavContainer">
+          <button class="btn btn-secondary btn-sm" id="btnAdminSignOut">Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Access Denied / Auth Gate (when not logged in as Admin) -->
+  <div class="container" id="adminAuthGate" style="display: none; padding: 60px 20px; text-align: center;">
+    <div style="max-width: 500px; margin: 0 auto; background: rgba(255,255,255,0.03); border: 1px solid var(--slate-border); padding: 40px; border-radius: 16px;">
+      <div style="font-size: 3rem; margin-bottom: 15px;">🛡️</div>
+      <h2 style="font-family: var(--font-heading); color: var(--white); margin-bottom: 10px;">Administrator Access Required</h2>
+      <p style="color: var(--slate-light); font-size: 0.9rem; margin-bottom: 24px; line-height: 1.6;">
+        This administration area requires elevated director permissions to view client tender documents, manage enquiry statuses, and edit UK construction unit rates.
+      </p>
+
+      <div id="adminLoginAlert" style="display:none; padding:10px; border-radius:6px; font-size:0.85rem; margin-bottom:15px;"></div>
+
+      <form id="formAdminLogin">
+        <div style="margin-bottom: 14px; text-align: left;">
+          <label style="display:block; font-size:0.8rem; color:#CBD5E1; margin-bottom:5px;">Admin Email</label>
+          <input type="email" class="search-input" id="adminEmailInput" style="width:100%;" required value="admin@orionbuildcost.co.uk">
+        </div>
+        <div style="margin-bottom: 18px; text-align: left;">
+          <label style="display:block; font-size:0.8rem; color:#CBD5E1; margin-bottom:5px;">Password</label>
+          <input type="password" class="search-input" id="adminPassInput" style="width:100%;" required value="OrionAdmin2026!">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Authenticate as Director</button>
+      </form>
+
+      <div style="margin-top: 20px; font-size: 0.8rem; color: var(--gold-accent);">
+        ⚡ Pre-filled with seed administrator credentials.
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Authenticated Admin Workspace -->
+  <main class="section" id="adminWorkspace" style="display: none; padding-top: 25px; min-height: 75vh;">
+    <div class="container">
+
+      <!-- Header Title & Controls -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <h1 style="font-family: var(--font-heading); font-size: 1.8rem; color: var(--white);">
+            Administration &amp; Business Intelligence
+          </h1>
+          <p style="color: var(--slate-light); font-size: 0.85rem;">
+            Real-time enquiry inbox, quotation lifecycle governance, and RICS NRM2 pricing rate management.
+          </p>
+        </div>
+        <div>
+          <span class="status-badge status-completed" style="padding: 6px 12px;">SQLite WAL Active</span>
+        </div>
+      </div>
+
+      <!-- Admin Tabs Navigation -->
+      <div class="admin-tabs" role="tablist">
+        <button class="admin-tab-btn active" data-tab="overview">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Overview
+        </button>
+        <button class="admin-tab-btn" data-tab="enquiries">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          Enquiry Inbox (<span id="countEnquiriesTab">0</span>)
+        </button>
+        <button class="admin-tab-btn" data-tab="quotes">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+          Quotes &amp; Revisions
+        </button>
+        <button class="admin-tab-btn" data-tab="clients">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Client Directory
+        </button>
+        <button class="admin-tab-btn" data-tab="pricing">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          Pricing Data Layer (Phase 8)
+        </button>
+        <button class="admin-tab-btn" data-tab="analytics">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          Website Analytics
+        </button>
+        <button class="admin-tab-btn" data-tab="system">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          System &amp; Audit Trail
+        </button>
+      </div>
+
+      <!-- ================= TAB 1: OVERVIEW ================= -->
+      <div class="admin-tab-content" id="tab-overview">
+        <!-- KPI Row -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Total Enquiries</div>
+            <div class="kpi-val" id="kpiEnquiries">0</div>
+            <div class="kpi-sub">Across all UK regions</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Active Schemes</div>
+            <div class="kpi-val" id="kpiProjects">0</div>
+            <div class="kpi-sub">Under active estimation</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Fee Proposals</div>
+            <div class="kpi-val" id="kpiQuotes">0</div>
+            <div class="kpi-sub">Issued or in preparation</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Client Accounts</div>
+            <div class="kpi-val" id="kpiUsers">0</div>
+            <div class="kpi-sub">Registered UK entities</div>
+          </div>
+        </div>
+
+        <!-- Recent Inbound Enquiries Stream -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--slate-border); border-radius: 12px; padding: 24px; margin-bottom: 30px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="font-family: var(--font-heading); font-size: 1.2rem; color: var(--white);">Recent Inbound Enquiries</h3>
+            <button class="btn btn-secondary btn-sm" onclick="document.querySelector('[data-tab=enquiries]').click()">Open Inbox</button>
+          </div>
+          <div class="admin-table-container" style="margin-bottom:0;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Ref</th>
+                  <th>Client</th>
+                  <th>Company</th>
+                  <th>Project Type</th>
+                  <th>Location</th>
+                  <th>Status</th>
+                  <th>Received</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="overviewEnquiriesBody">
+                <tr><td colspan="8" style="text-align:center; color:var(--slate-light);">Loading recent enquiries...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent Audit Trail -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--slate-border); border-radius: 12px; padding: 24px;">
+          <h3 style="font-family: var(--font-heading); font-size: 1.2rem; color: var(--white); margin-bottom:16px;">Recent System &amp; User Activity</h3>
+          <div class="admin-table-container" style="margin-bottom:0;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Details</th>
+                  <th>IP Address</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="overviewActivityBody">
+                <tr><td colspan="4" style="text-align:center; color:var(--slate-light);">Loading recent activity...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 2: ENQUIRY INBOX ================= -->
+      <div class="admin-tab-content" id="tab-enquiries" style="display:none;">
+        <div class="filter-bar">
+          <input type="text" class="search-input" id="searchEnquiries" placeholder="Search by name, company, ref, postcode...">
+          <select class="search-input" id="filterEnquiryStatus" style="width: auto;">
+            <option value="all">All Statuses</option>
+            <option value="new">New</option>
+            <option value="under_review">Under Review</option>
+            <option value="awaiting_information">Awaiting Information</option>
+            <option value="quote_preparation">Quote Preparation</option>
+            <option value="quote_sent">Quote Sent</option>
+            <option value="accepted">Accepted</option>
+            <option value="declined">Declined</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Client Name</th>
+                <th>Company</th>
+                <th>Contact</th>
+                <th>Project Type</th>
+                <th>Country &amp; Postcode</th>
+                <th>Status</th>
+                <th>Date Received</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="enquiriesTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= TAB 3: QUOTES ================= -->
+      <div class="admin-tab-content" id="tab-quotes" style="display:none;">
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Quote Reference</th>
+                <th>Status</th>
+                <th>Scope Description</th>
+                <th>Target Deadline</th>
+                <th>Approx. Size</th>
+                <th>Revision</th>
+                <th>Internal QS Notes</th>
+                <th>Created At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminQuotesTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= TAB 4: CLIENTS ================= -->
+      <div class="admin-tab-content" id="tab-clients" style="display:none;">
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Company / Organisation</th>
+                <th>Email Address</th>
+                <th>Telephone</th>
+                <th>Role</th>
+                <th>Registered Date</th>
+              </tr>
+            </thead>
+            <tbody id="adminClientsTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= TAB 5: PRICING GOVERNANCE (Phase 8) ================= -->
+      <div class="admin-tab-content" id="tab-pricing" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:14px;">
+          <div>
+            <h2 style="font-family: var(--font-heading); font-size: 1.3rem; color: var(--white);">
+              UK Construction Pricing Data Layer (NRM2)
+            </h2>
+            <p style="color:var(--slate-light); font-size:0.85rem;">
+              Maintain standard rate libraries, labour/plant splits, source dates, and regional factors.
+            </p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <select class="search-input" id="filterPricingTrade" style="width: auto;">
+              <option value="">All Trade Categories</option>
+            </select>
+            <select class="search-input" id="filterPricingStatus" style="width: auto;">
+              <option value="">All Verification Statuses</option>
+              <option value="verified">Verified Rates Only</option>
+              <option value="illustrative">Illustrative Benchmarks</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Regional Multipliers Card -->
+        <div style="background: rgba(212,175,55,0.05); border: 1px solid rgba(212,175,55,0.3); border-radius: 10px; padding: 16px; margin-bottom: 24px;">
+          <div style="font-weight: 700; color: var(--gold-accent); margin-bottom: 8px; font-size: 0.9rem;">
+            Documented UK Regional Adjustment Multipliers (BCIS / RICS Standards):
+          </div>
+          <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.85rem; color: #E2E8F0;">
+            <span>🇬🇧 England Base: <strong>1.00</strong></span>
+            <span>🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland: <strong>1.03</strong></span>
+            <span>🏴󠁧󠁢󠁷󠁬󠁳󠁿 Wales: <strong>0.98</strong></span>
+            <span>🇬🇧 Northern Ireland: <strong>0.97</strong></span>
+            <span>🏛️ Greater London: <strong>1.22</strong></span>
+            <span>🌳 South East England: <strong>1.12</strong></span>
+          </div>
+        </div>
+
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Item Code</th>
+                <th>Trade Category</th>
+                <th>Description</th>
+                <th>Unit</th>
+                <th>Unit Rate</th>
+                <th>Labour / Mat / Plant</th>
+                <th>Source Reference</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminPricingTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= TAB 6: ANALYTICS ================= -->
+      <div class="admin-tab-content" id="tab-analytics" style="display:none;">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Unique Visitors</div>
+            <div class="kpi-val" id="analyticsVisitors">0</div>
+            <div class="kpi-sub">Local tracking &amp; sessions</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Page Views</div>
+            <div class="kpi-val" id="analyticsPageViews">0</div>
+            <div class="kpi-sub">Combined route activity</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Quote Funnel Starts</div>
+            <div class="kpi-val" id="analyticsQuoteStarts">0</div>
+            <div class="kpi-sub">Enquiry form engagements</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Conversion Rate</div>
+            <div class="kpi-val" id="analyticsConversion">0%</div>
+            <div class="kpi-sub">Completions / Starts</div>
+          </div>
+        </div>
+
+        <!-- Service Engagement Breakdown -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--slate-border); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+          <h3 style="font-family: var(--font-heading); font-size: 1.2rem; color: var(--white); margin-bottom: 16px;">
+            Service Page Engagement Breakdown
+          </h3>
+          <div class="admin-table-container" style="margin-bottom:0;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Service Page</th>
+                  <th>Page Views</th>
+                  <th>Share of Traffic</th>
+                </tr>
+              </thead>
+              <tbody id="analyticsServicesBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px dashed var(--slate-border); border-radius: 8px; padding: 14px; font-size: 0.8rem; color: var(--slate-light);">
+          <strong>Analytics Integrity Notice:</strong> Data reflects persistent SQLite enquiry metrics combined with local server session trackers. No external third-party cookies or intrusive user identifiers are stored.
+        </div>
+      </div>
+
+      <!-- ================= TAB 7: SYSTEM STATUS ================= -->
+      <div class="admin-tab-content" id="tab-system" style="display:none;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 30px;">
+          <div class="kpi-card">
+            <h3 style="font-family: var(--font-heading); color: var(--white); font-size: 1.15rem; margin-bottom: 12px;">Storage &amp; Database Health</h3>
+            <div style="font-size: 0.85rem; line-height: 1.8; color: #CBD5E1;">
+              <div>• <strong>Engine:</strong> <span id="sysDbEngine">SQLite (node:sqlite native WAL)</span></div>
+              <div>• <strong>Database Path:</strong> <code id="sysDbPath" style="font-size:0.75rem;">data/orion.db</code></div>
+              <div>• <strong>Active Sessions:</strong> <span id="sysSessions">0</span></div>
+              <div>• <strong>Benchmark Rates:</strong> <span id="sysRates">0</span> records</div>
+              <div>• <strong>Drawing Binary Store:</strong> <code>storage/drawings</code> (403 Protected)</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <h3 style="font-family: var(--font-heading); color: var(--white); font-size: 1.15rem; margin-bottom: 12px;">Integration &amp; Dispatch Status</h3>
+            <div style="font-size: 0.85rem; line-height: 1.8; color: #CBD5E1;">
+              <div>• <strong>SMTP Service:</strong> <span style="color:var(--gold-accent);">Demo Local Store Active</span></div>
+              <div>• <strong>Security:</strong> Scrypt password salts, tenant boundaries</div>
+              <div>• <strong>Export Engine:</strong> ExcelJS (.xlsx) + CSV Streamer</div>
+              <div>• <strong>Compliance:</strong> RICS NRM2 Standard Formats</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Full Audit Log -->
+        <h3 style="font-family: var(--font-heading); color: var(--white); font-size: 1.2rem; margin-bottom: 14px;">Full Audit Activity Log</h3>
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Action Code</th>
+                <th>Details</th>
+                <th>User ID</th>
+                <th>IP Address</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="fullAuditLogsBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ================= ENQUIRY INSPECTION & MANAGEMENT DRAWER ================= -->
+  <div class="admin-modal-backdrop" id="enquiryModal" style="display: none;">
+    <div class="admin-drawer">
+      <button style="position: absolute; top: 18px; right: 20px; background: none; color: var(--slate-light); font-size: 1.5rem; cursor: pointer;" id="btnCloseEnquiryModal">&times;</button>
+      
+      <div style="margin-bottom: 16px;">
+        <span class="status-badge status-draft" id="modalEnquiryRefBadge">OBC-2026-XXXX</span>
+        <h2 style="font-family: var(--font-heading); color: var(--white); font-size: 1.35rem; margin-top: 6px;" id="modalEnquiryTitle">
+          Enquiry Details
+        </h2>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 0.85rem; margin-bottom: 18px; background: rgba(255,255,255,0.02); padding: 14px; border-radius: 8px;">
+        <div><strong>Client:</strong> <span id="modalEnquiryName"></span></div>
+        <div><strong>Company:</strong> <span id="modalEnquiryCompany"></span></div>
+        <div><strong>Email:</strong> <span id="modalEnquiryEmail"></span></div>
+        <div><strong>Phone:</strong> <span id="modalEnquiryPhone"></span></div>
+        <div><strong>Type:</strong> <span id="modalEnquiryType"></span></div>
+        <div><strong>Location:</strong> <span id="modalEnquiryLoc"></span></div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--slate-light); text-transform: uppercase; margin-bottom: 6px;">Requested Services</div>
+        <div id="modalEnquiryServices" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
+      </div>
+
+      <div style="margin-bottom: 18px;">
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--slate-light); text-transform: uppercase; margin-bottom: 6px;">Project Scope &amp; Brief</div>
+        <div id="modalEnquiryDesc" style="background: rgba(255,255,255,0.04); padding: 12px; border-radius: 6px; font-size: 0.85rem; line-height: 1.6; color: #E2E8F0;"></div>
+      </div>
+
+      <!-- Status Updater Form -->
+      <div style="background: rgba(11,37,69,0.5); border: 1px solid var(--slate-border); border-radius: 8px; padding: 16px; margin-bottom: 18px;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--white); margin-bottom: 8px;">
+          Update Enquiry Workflow Status:
+        </label>
+        <div style="display: flex; gap: 10px;">
+          <select class="search-input" id="modalStatusSelect" style="flex: 1;">
+            <option value="new">New (Unreviewed)</option>
+            <option value="under_review">Under Review</option>
+            <option value="awaiting_information">Awaiting Information</option>
+            <option value="quote_preparation">Quote Preparation</option>
+            <option value="quote_sent">Quote Sent</option>
+            <option value="accepted">Accepted</option>
+            <option value="declined">Declined</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Confidential Internal QS Notes -->
+      <div class="internal-notes-box">
+        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #fb923c; margin-bottom: 6px;">
+          🔒 Private Internal QS Notes (Never Disclosed to Client):
+        </label>
+        <textarea id="modalInternalNotes" class="search-input" style="width: 100%; height: 90px; resize: vertical; margin-bottom: 10px;" placeholder="Add private surveyor comments, fee considerations, risk factors, or tender milestones..."></textarea>
+        <button type="button" class="btn btn-primary btn-sm" id="btnSaveEnquiryChanges" style="width: 100%;">
+          Save Status &amp; Internal Notes
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

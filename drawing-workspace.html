@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drawing &amp; Quantity Take-Off Workspace | Orion Build Cost</title>
+  <meta name="description" content="Advanced drawing and assisted quantity take-off workspace for UK Quantity Surveyors, estimators, and contractors. Calibrate scale, measure linear and area take-offs, and export to BOQ.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* Drawing Workspace Luxury CAD Styling */
+    .workspace-topbar {
+      background: #050E1A;
+      border-bottom: 1px solid var(--slate-border);
+      padding: 8px 0;
+      font-size: 0.85rem;
+    }
+    .workspace-toolbar {
+      background: var(--navy-darkest);
+      border-bottom: 1px solid var(--slate-border);
+      padding: 12px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .toolbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .tool-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--slate-border);
+    }
+    .tool-btn {
+      background: transparent;
+      color: var(--slate-light);
+      border: 1px solid transparent;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--transition-fast);
+    }
+    .tool-btn:hover {
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .tool-btn.active {
+      color: var(--navy-darkest);
+      background: var(--gold-accent);
+      border-color: var(--gold-accent);
+    }
+    .workspace-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      height: calc(100vh - 170px);
+      min-height: 600px;
+      background: #071527;
+      overflow: hidden;
+    }
+    @media (max-width: 992px) {
+      .workspace-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+    }
+    .canvas-viewport {
+      position: relative;
+      background: #0A192F;
+      background-image: 
+        radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+        radial-gradient(rgba(212, 175, 55, 0.05) 1px, transparent 1px);
+      background-size: 20px 20px, 100px 100px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: crosshair;
+    }
+    .canvas-viewport.panning {
+      cursor: grab;
+    }
+    #drawingCanvas {
+      display: block;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 4px;
+    }
+    .sidebar-panel {
+      background: var(--navy-darker);
+      border-left: 1px solid var(--slate-border);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--slate-border);
+      background: rgba(11, 37, 69, 0.4);
+    }
+    .sidebar-tab-btn {
+      flex: 1;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--slate-light);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+      border-bottom: 2px solid transparent;
+      transition: all var(--transition-fast);
+    }
+    .sidebar-tab-btn.active {
+      color: var(--gold-accent);
+      border-bottom-color: var(--gold-accent);
+      background: rgba(212, 175, 55, 0.05);
+    }
+    .sidebar-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    .takeoff-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--slate-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      transition: border-color var(--transition-fast);
+    }
+    .takeoff-card:hover {
+      border-color: rgba(212, 175, 55, 0.4);
+    }
+    .provenance-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .provenance-manual { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .provenance-ai_suggested { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .provenance-verified_approved { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+
+    .ai-warning-box {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 0.8rem;
+      color: #fde68a;
+      line-height: 1.5;
+    }
+    .hud-controls {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(5, 14, 26, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--slate-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--white);
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="topbar workspace-topbar">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <div>
+        <span class="topbar-badge">Phase 9 CAD Engine</span>
+        <span style="color:#CBD5E1; margin-left:8px;">Assisted Take-Off Workspace &amp; NRM2 Calibration</span>
+      </div>
+      <div>
+        <span style="color:var(--gold-accent); font-weight:600;">📐 Standard UK Architectural Scales</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="index.html" class="nav-brand">
+        <div class="logo-container">
+          <img src="assets/images/logo-transparent.png" alt="Orion Build Cost Logo" class="brand-logo-img">
+        </div>
+        <div class="brand-meta">
+          <span class="brand-title">Orion <span>Build Cost</span></span>
+          <span class="brand-sub">Quantity Take-Off Workspace</span>
+        </div>
+      </a>
+
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="estimator.html" class="nav-link">Estimator</a>
+        <a href="boq-builder.html" class="nav-link">BOQ Builder</a>
+        <a href="drawing-workspace.html" class="nav-link active">Take-Off Workspace</a>
+        <a href="portal.html" class="nav-link">Client Portal</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="portal.html" class="btn btn-secondary btn-sm">Client Portal</a>
+        <a href="quote.html" class="btn btn-primary btn-sm">Request a Quote</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Interactive Take-Off Toolbar -->
+  <div class="workspace-toolbar">
+    <div class="container toolbar-container">
+      
+      <!-- Drawing Selector & Upload -->
+      <div class="tool-group">
+        <span style="font-size:0.8rem; color:var(--slate-light); font-weight:600;">Plan:</span>
+        <select id="selectDrawing" class="tool-btn" style="background:rgba(255,255,255,0.06); color:var(--white);">
+          <option value="demo-plan-1">Sample Ground Floor Extension (Plan A-101)</option>
+          <option value="demo-plan-2">Sample Commercial Office Layout (Plan C-204)</option>
+        </select>
+        <label for="drawingFileInput" class="btn btn-secondary btn-sm" style="padding:4px 10px; font-size:0.75rem; cursor:pointer;">
+          + Upload Plan
+        </label>
+        <input type="file" id="drawingFileInput" accept=".pdf,.png,.jpg,.jpeg" style="display:none;">
+      </div>
+
+      <!-- Measurement Tools -->
+      <div class="tool-group">
+        <span style="font-size:0.8rem; color:var(--slate-light); font-weight:600;">Tool:</span>
+        <button class="tool-btn active" data-tool="select" id="toolSelect">
+          🔍 Select
+        </button>
+        <button class="tool-btn" data-tool="linear" id="toolLinear">
+          📏 Linear (m)
+        </button>
+        <button class="tool-btn" data-tool="area" id="toolArea">
+          📐 Area (m²)
+        </button>
+        <button class="tool-btn" data-tool="count" id="toolCount">
+          🔢 Count (nr)
+        </button>
+      </div>
+
+      <!-- Scale Calibration -->
+      <div class="tool-group">
+        <span style="font-size:0.8rem; color:var(--slate-light); font-weight:600;">Scale:</span>
+        <select id="scaleRatioSelect" class="tool-btn" style="background:rgba(255,255,255,0.06); color:var(--white);">
+          <option value="1:100" selected>1:100 (Standard Plan)</option>
+          <option value="1:50">1:50 (Detailed Layout)</option>
+          <option value="1:200">1:200 (Site / Elevation)</option>
+          <option value="1:20">1:20 (Joinery Section)</option>
+        </select>
+      </div>
+
+      <!-- Zoom Controls & Clear -->
+      <div class="tool-group">
+        <button class="tool-btn" id="btnZoomIn" title="Zoom In">+</button>
+        <span id="zoomLevelText" style="font-size:0.8rem; color:var(--gold-accent); padding:0 4px;">100%</span>
+        <button class="tool-btn" id="btnZoomOut" title="Zoom Out">-</button>
+        <button class="tool-btn" id="btnZoomReset" title="Reset View">Reset</button>
+        <button class="tool-btn" id="btnClearCanvas" style="color:#f87171;" title="Clear Measurements">Clear</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Workspace Canvas & Sidebar Layout -->
+  <div class="workspace-layout">
+
+    <!-- CAD Canvas Viewport -->
+    <div class="canvas-viewport" id="canvasViewport">
+      <canvas id="drawingCanvas" width="960" height="640"></canvas>
+
+      <!-- HUD Overlay -->
+      <div class="hud-controls">
+        <div>Scale: <strong id="hudScaleRatio" style="color:var(--gold-accent);">1:100</strong></div>
+        <div>|</div>
+        <div>Current Tool: <strong id="hudActiveTool" style="color:#60a5fa;">Select / Pan</strong></div>
+        <div>|</div>
+        <div id="hudMeasurementInfo" style="color:var(--white);">Click on canvas to measure</div>
+      </div>
+    </div>
+
+    <!-- Take-Off & Assisted Candidates Sidebar -->
+    <aside class="sidebar-panel">
+      <!-- Tabs -->
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab-btn active" data-sidetab="schedule" id="tabBtnSchedule">
+          Take-Off Schedule (<span id="scheduleCount">0</span>)
+        </button>
+        <button class="sidebar-tab-btn" data-sidetab="assisted" id="tabBtnAssisted">
+          Assisted Extraction ✨
+        </button>
+      </div>
+
+      <!-- Tab 1: Manual & Approved Take-Off Schedule -->
+      <div class="sidebar-body" id="sideTabSchedule">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <h4 style="font-family:var(--font-heading); color:var(--white); font-size:1rem;">Measurements On Plan</h4>
+          <button class="btn btn-primary btn-sm" id="btnExportToBOQ" style="padding:4px 10px; font-size:0.75rem;">
+            Export to BOQ ➔
+          </button>
+        </div>
+
+        <div id="scheduleItemsContainer">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Tab 2: AI-Assisted Candidate Extraction -->
+      <div class="sidebar-body" id="sideTabAssisted" style="display:none;">
+        <div class="ai-warning-box">
+          <strong>⚠️ RICS NRM2 Human QS Verification Notice:</strong><br>
+          Assisted candidate schedules are extracted algorithmically from architectural geometry. Every item is flagged with <code>ai_suggested</code> provenance and <strong>requires human surveyor verification</strong> before export into official contract bills.
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <h4 style="font-family:var(--font-heading); color:var(--white); font-size:1rem;">Candidate Take-Off Items</h4>
+          <button class="btn btn-secondary btn-sm" id="btnDetectCandidates" style="padding:4px 10px; font-size:0.75rem;">
+            ⚡ Rescan Plan
+          </button>
+        </div>
+
+        <div id="assistedCandidatesContainer">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Verification Sign-off Modal -->
+  <div class="admin-modal-backdrop" id="verificationModal" style="display:none;">
+    <div class="admin-drawer" style="max-width:500px;">
+      <button style="position: absolute; top: 18px; right: 20px; background: none; color: var(--slate-light); font-size: 1.5rem; cursor: pointer;" id="btnCloseVerifModal">&times;</button>
+      
+      <h3 style="font-family:var(--font-heading); color:var(--white); margin-bottom:6px;">QS Verification Sign-Off</h3>
+      <p style="color:var(--slate-light); font-size:0.85rem; margin-bottom:18px;">Confirm and certify take-off measurement against calibrated drawing scale.</p>
+
+      <div style="background:rgba(255,255,255,0.03); border:1px solid var(--slate-border); border-radius:8px; padding:14px; margin-bottom:16px;">
+        <div style="font-size:0.8rem; color:var(--slate-light); margin-bottom:4px;">Item Description</div>
+        <div id="verifItemLabel" style="font-weight:600; color:var(--white); margin-bottom:10px;"></div>
+        <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+          <div>Quantity: <strong id="verifItemQty" style="color:var(--gold-accent);"></strong></div>
+          <div>Scale: <strong id="verifItemScale"></strong></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label style="display:block; font-size:0.85rem; color:#CBD5E1; margin-bottom:6px;">Surveyor Verification Notes *</label>
+        <textarea id="verifNotesInput" class="search-input" style="width:100%; height:80px; resize:vertical;" placeholder="e.g. Certified against 1:100 graphic scale bar and dimension grid A-C."></textarea>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="btnConfirmVerification" style="width:100%;">
+        Certify &amp; Approve for BOQ
+      </button>
+    </div>
+  </div>
+
+  <script src="drawing-workspace.js"></script>
+</body>
+</html>

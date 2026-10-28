@@ -1,5 +1,8 @@
 node_modules/
 storage/quotes/*
 data/quotes/*
+data/orion.db*
+storage/drawings/*
 !storage/quotes/.gitkeep
 !data/quotes/.gitkeep
+!storage/drawings/.gitkeep

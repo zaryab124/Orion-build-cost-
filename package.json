@@ -4,7 +4,7 @@
   "description": "Orion Build Cost - UK Quantity Surveying & Cost Estimation Platform",
   "main": "main.js",
   "scripts": {
-    "test": "node --test tests/*.test.js",
+    "test": "node run-tests.js",
     "start": "node server.js"
   },
   "keywords": [

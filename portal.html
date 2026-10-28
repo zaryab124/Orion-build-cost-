@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Portal | Orion Build Cost — UK Quantity Surveying & Cost Estimation</title>
+  <meta name="description" content="Secure Client Portal for Orion Build Cost clients. Access your projects, saved estimates, quotation revisions, and drawing documentation with complete confidentiality.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* Client Portal Custom Luxury Styling */
+    .portal-banner {
+      background: linear-gradient(90deg, rgba(11,37,69,0.95), rgba(19,64,116,0.95));
+      border-bottom: 1px solid var(--slate-border);
+      padding: 10px 0;
+      font-size: 0.85rem;
+    }
+    .portal-banner-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .portal-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 30px 0 20px 0;
+      border-bottom: 1px solid var(--slate-border);
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .portal-user-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 8px 16px;
+      border-radius: 30px;
+      border: 1px solid var(--slate-border);
+    }
+    .user-avatar-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--gold-accent);
+      color: var(--navy-darkest);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    .portal-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--slate-border);
+      margin-bottom: 30px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .portal-tab-btn {
+      background: transparent;
+      color: var(--slate-light);
+      padding: 12px 20px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+    }
+    .portal-tab-btn:hover {
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .portal-tab-btn.active {
+      color: var(--gold-accent);
+      border-bottom: 3px solid var(--gold-accent);
+      background: rgba(212, 175, 55, 0.06);
+    }
+    .portal-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 35px;
+    }
+    .portal-stat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--slate-border);
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--transition-fast), border-color var(--transition-fast);
+    }
+    .portal-stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(212, 175, 55, 0.4);
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--slate-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .stat-meta {
+      font-size: 0.8rem;
+      color: var(--gold-accent);
+      margin-top: 6px;
+    }
+    .portal-table-container {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--slate-border);
+      border-radius: 12px;
+      overflow-x: auto;
+      margin-bottom: 30px;
+    }
+    .portal-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .portal-table th {
+      background: rgba(11, 37, 69, 0.6);
+      padding: 14px 18px;
+      color: var(--slate-light);
+      font-weight: 600;
+      border-bottom: 1px solid var(--slate-border);
+      white-space: nowrap;
+    }
+    .portal-table td {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #E2E8F0;
+    }
+    .portal-table tr:last-child td {
+      border-bottom: none;
+    }
+    .portal-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .status-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .status-new { background: rgba(0, 194, 255, 0.15); color: #38bdf8; border: 1px solid rgba(0, 194, 255, 0.3); }
+    .status-under_review { background: rgba(212, 175, 55, 0.15); color: #facc15; border: 1px solid rgba(212, 175, 55, 0.3); }
+    .status-awaiting_information { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
+    .status-quote_sent { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .status-accepted { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .status-declined { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .status-active { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .status-draft { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+    /* Auth Overlay Modal */
+    .auth-modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(5, 14, 26, 0.88);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+    .auth-card {
+      background: var(--navy-darker);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+      border-radius: 16px;
+      max-width: 480px;
+      width: 100%;
+      padding: 35px;
+      position: relative;
+    }
+    .auth-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+      border-bottom: 1px solid var(--slate-border);
+      padding-bottom: 10px;
+    }
+    .auth-tab-btn {
+      background: transparent;
+      color: var(--slate-light);
+      padding: 8px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all var(--transition-fast);
+    }
+    .auth-tab-btn.active {
+      color: var(--white);
+      background: var(--navy-primary);
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #CBD5E1;
+      margin-bottom: 6px;
+    }
+    .form-control {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--slate-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: var(--white);
+      font-size: 0.95rem;
+      transition: border-color var(--transition-fast);
+    }
+    .form-control:focus {
+      border-color: var(--gold-accent);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .demo-credentials-box {
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px dashed rgba(212, 175, 55, 0.4);
+      padding: 14px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: var(--gold-light);
+    }
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--slate-light);
+    }
+    .empty-state svg {
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="topbar portal-banner">
+    <div class="container portal-banner-content">
+      <div>
+        <span class="topbar-badge">Client Portal</span>
+        <span style="color:#CBD5E1; margin-left:8px;">Confidential Client Data &amp; RICS NRM2 Estimates</span>
+      </div>
+      <div>
+        <span style="color:var(--gold-accent); font-weight:600;">🔒 Secure Tenant Isolated Session</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="index.html" class="nav-brand">
+        <div class="logo-container">
+          <img src="assets/images/logo-transparent.png" alt="Orion Build Cost Logo" class="brand-logo-img">
+        </div>
+        <div class="brand-meta">
+          <span class="brand-title">Orion <span>Build Cost</span></span>
+          <span class="brand-sub">Cost Estimation Experts</span>
+        </div>
+      </a>
+
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="services/quantity-take-offs.html" class="nav-link">Services</a>
+        <a href="estimator.html" class="nav-link">Estimator</a>
+        <a href="boq-builder.html" class="nav-link">BOQ Builder</a>
+        <a href="drawing-workspace.html" class="nav-link">Drawing Take-Off</a>
+        <a href="portal.html" class="nav-link active">Client Portal</a>
+        <a href="admin.html" class="nav-link" id="adminNavLink" style="display:none;">Admin</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div id="authNavContainer">
+          <button class="btn btn-primary btn-sm" id="btnOpenAuthModal">Client Sign In</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Demo Mode Info Banner -->
+  <div style="background: rgba(212,175,55,0.06); border-bottom: 1px solid rgba(212,175,55,0.2); padding: 12px 0;">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 0.85rem;">
+      <div>
+        <span style="color:var(--gold-accent); font-weight:700;">PROTOTYPE ENVIRONMENT:</span>
+        <span style="color:#CBD5E1; margin-left: 6px;">Persistent SQLite WAL database active. Passwords scrypt-hashed. Sensitive drawings access-controlled.</span>
+      </div>
+      <div id="quickLoginDemoBtnContainer">
+        <button class="btn btn-secondary btn-sm" id="btnQuickDemoLogin" style="padding: 4px 12px; font-size: 0.8rem;">
+          ⚡ Auto-Fill Demo Client (Apex Developments)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumb-nav">
+    <div class="container">
+      <ul class="breadcrumbs">
+        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li class="breadcrumb-item active" aria-current="page">Client Portal</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Portal Section -->
+  <main class="section" style="padding-top: 30px; min-height: 70vh;">
+    <div class="container" id="portalMainContainer">
+
+      <!-- Unauthenticated Placeholder View -->
+      <div id="unauthNotice" style="display: none; text-align: center; padding: 60px 20px;">
+        <div style="max-width: 540px; margin: 0 auto; background: rgba(255,255,255,0.03); border: 1px solid var(--slate-border); padding: 40px; border-radius: 16px;">
+          <div style="font-size: 3rem; margin-bottom: 15px;">🔒</div>
+          <h2 style="font-family: var(--font-heading); margin-bottom: 10px; color: var(--white);">Client Portal Authentication Required</h2>
+          <p style="color: var(--slate-light); margin-bottom: 25px; line-height: 1.6;">
+            Sign in to access your tender packages, view quotation revisions, track drawing take-offs, and download official RICS NRM2 Bills of Quantities.
+          </p>
+          <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="btnHeroSignIn">Sign In to Account</button>
+            <button class="btn btn-secondary" id="btnHeroRegister">Register New Account</button>
+          </div>
+          <div class="demo-credentials-box" style="margin-top: 30px; text-align: left;">
+            <strong>Demo Client Credentials:</strong><br>
+            Email: <code>client@apexdevelopments.co.uk</code><br>
+            Password: <code>ApexClient2026!</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Authenticated Portal Workspace -->
+      <div id="authPortalContent" style="display: none;">
+
+        <!-- Portal Header Bar -->
+        <div class="portal-header-bar">
+          <div>
+            <h1 style="font-family: var(--font-heading); font-size: 1.8rem; color: var(--white); margin-bottom: 4px;">
+              Welcome, <span id="clientFullNameHeader">Client</span>
+            </h1>
+            <p style="color: var(--slate-light); font-size: 0.9rem;" id="clientCompanySub">Apex Developments UK</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div class="portal-user-badge">
+              <div class="user-avatar-circle" id="userAvatarText">JA</div>
+              <div>
+                <div style="font-size: 0.85rem; font-weight: 600; color: var(--white);" id="userBadgeName">James Anderson</div>
+                <div style="font-size: 0.75rem; color: var(--gold-accent);" id="userBadgeRole">Client Portal</div>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="btnSignOut">Sign Out</button>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="portal-tabs" role="tablist">
+          <button class="portal-tab-btn active" data-tab="overview">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Overview
+          </button>
+          <button class="portal-tab-btn" data-tab="projects">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            My Projects (<span id="tabCountProjects">0</span>)
+          </button>
+          <button class="portal-tab-btn" data-tab="estimates">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            My Estimates (<span id="tabCountEstimates">0</span>)
+          </button>
+          <button class="portal-tab-btn" data-tab="quotes">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            My Quotations (<span id="tabCountQuotes">0</span>)
+          </button>
+          <button class="portal-tab-btn" data-tab="documents">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+            Drawings &amp; Documents (<span id="tabCountDocs">0</span>)
+          </button>
+          <button class="portal-tab-btn" data-tab="settings">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            Account Settings
+          </button>
+        </div>
+
+        <!-- ================= TAB: OVERVIEW ================= -->
+        <div class="portal-tab-content" id="tab-overview">
+          <!-- Stats Grid -->
+          <div class="portal-stats-grid">
+            <div class="portal-stat-card">
+              <div class="stat-label">Active Projects</div>
+              <div class="stat-value" id="statProjectsCount">0</div>
+              <div class="stat-meta">In estimation &amp; tender</div>
+            </div>
+            <div class="portal-stat-card">
+              <div class="stat-label">Saved Estimates</div>
+              <div class="stat-value" id="statEstimatesCount">0</div>
+              <div class="stat-meta">BCIS benchmark models</div>
+            </div>
+            <div class="portal-stat-card">
+              <div class="stat-label">Formal Quotations</div>
+              <div class="stat-value" id="statQuotesCount">0</div>
+              <div class="stat-meta">Tracked references</div>
+            </div>
+            <div class="portal-stat-card">
+              <div class="stat-label">Uploaded Drawings</div>
+              <div class="stat-value" id="statFilesCount">0</div>
+              <div class="stat-meta">Architectural packages</div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--slate-border); border-radius: 12px; padding: 24px; margin-bottom: 30px;">
+            <h3 style="font-family: var(--font-heading); font-size: 1.2rem; color: var(--white); margin-bottom: 16px;">Quick Workflows</h3>
+            <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+              <button class="btn btn-primary btn-sm" id="btnQuickNewProject">+ New Project Scheme</button>
+              <a href="estimator.html" class="btn btn-secondary btn-sm">Launch Estimating Engine</a>
+              <a href="boq-builder.html" class="btn btn-secondary btn-sm">Open BOQ Builder</a>
+              <a href="drawing-workspace.html" class="btn btn-secondary btn-sm">Drawing Take-Off Workspace</a>
+              <a href="quote.html" class="btn btn-secondary btn-sm">Submit New Tender Pack</a>
+            </div>
+          </div>
+
+          <!-- Recent Activity & Recent Quotes Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px;">
+            <!-- Recent Quotes -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--white);">Recent Quotation Requests</h3>
+                <button class="btn btn-secondary btn-sm" style="padding:4px 10px; font-size:0.75rem;" onclick="document.querySelector('[data-tab=quotes]').click()">View All</button>
+              </div>
+              <div class="portal-table-container">
+                <table class="portal-table">
+                  <thead>
+                    <tr>
+                      <th>Reference</th>
+                      <th>Status</th>
+                      <th>Scope</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="overviewQuotesTableBody">
+                    <tr><td colspan="4" style="text-align:center; color:var(--slate-light);">Loading recent quotations...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--white);">Audit &amp; Account Activity</h3>
+              </div>
+              <div class="portal-table-container">
+                <table class="portal-table">
+                  <thead>
+                    <tr>
+                      <th>Action</th>
+                      <th>Details</th>
+                      <th>Timestamp</th>
+                    </tr>
+                  </thead>
+                  <tbody id="overviewActivityTableBody">
+                    <tr><td colspan="3" style="text-align:center; color:var(--slate-light);">Loading recent activity...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= TAB: PROJECTS ================= -->
+        <div class="portal-tab-content" id="tab-projects" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--white);">My Construction Schemes</h2>
+              <p style="color: var(--slate-light); font-size: 0.85rem;">Organise take-offs, estimates, and bills of quantities by scheme.</p>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btnAddNewProjectModal">+ Create New Project</button>
+          </div>
+
+          <div id="projectsGridContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- ================= TAB: ESTIMATES ================= -->
+        <div class="portal-tab-content" id="tab-estimates" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--white);">Saved Cost Estimates</h2>
+              <p style="color: var(--slate-light); font-size: 0.85rem;">Persistent estimate schedules with contingency and VAT calculations.</p>
+            </div>
+            <a href="estimator.html" class="btn btn-primary btn-sm">+ New Estimate in Engine</a>
+          </div>
+
+          <div class="portal-table-container">
+            <table class="portal-table">
+              <thead>
+                <tr>
+                  <th>Estimate Reference / Title</th>
+                  <th>Date</th>
+                  <th>Subtotal</th>
+                  <th>Contingency</th>
+                  <th>VAT Rate</th>
+                  <th>Grand Total</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="estimatesTableBody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ================= TAB: QUOTES ================= -->
+        <div class="portal-tab-content" id="tab-quotes" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--white);">Formal Quotation Requests</h2>
+              <p style="color: var(--slate-light); font-size: 0.85rem;">Track quotation progress, review QS revisions, and access final fee proposals.</p>
+            </div>
+            <a href="quote.html" class="btn btn-primary btn-sm">+ Submit New Quotation Request</a>
+          </div>
+
+          <div class="portal-table-container">
+            <table class="portal-table">
+              <thead>
+                <tr>
+                  <th>Quote Reference</th>
+                  <th>Status</th>
+                  <th>Project Scope</th>
+                  <th>Deadline</th>
+                  <th>Approx. Size</th>
+                  <th>Revision</th>
+                  <th>Date Submitted</th>
+                </tr>
+              </thead>
+              <tbody id="quotesTableBody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ================= TAB: DOCUMENTS ================= -->
+        <div class="portal-tab-content" id="tab-documents" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--white);">Drawings, Schedules &amp; Exports</h2>
+              <p style="color: var(--slate-light); font-size: 0.85rem;">Confidential drawing storage. Private URLs are protected and access-controlled.</p>
+            </div>
+            <a href="drawing-workspace.html" class="btn btn-primary btn-sm">Launch Take-Off Workspace</a>
+          </div>
+
+          <div class="portal-table-container">
+            <table class="portal-table">
+              <thead>
+                <tr>
+                  <th>File Name</th>
+                  <th>File Type</th>
+                  <th>Size</th>
+                  <th>Uploaded At</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="documentsTableBody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ================= TAB: SETTINGS ================= -->
+        <div class="portal-tab-content" id="tab-settings" style="display: none;">
+          <div style="max-width: 600px; background: rgba(255,255,255,0.03); border: 1px solid var(--slate-border); border-radius: 12px; padding: 30px;">
+            <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--white); margin-bottom: 20px;">Account Settings &amp; Security</h2>
+            
+            <form id="settingsProfileForm">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="settingsFullName" readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Address (Login Identity)</label>
+                <input type="email" class="form-control" id="settingsEmail" readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Company / Organisation</label>
+                <input type="text" class="form-control" id="settingsCompany" readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Telephone</label>
+                <input type="text" class="form-control" id="settingsPhone" readonly>
+              </div>
+            </form>
+
+            <hr style="border:0; border-top: 1px solid var(--slate-border); margin: 30px 0;">
+
+            <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--white); margin-bottom: 15px;">Update Password</h3>
+            <form id="changePasswordForm">
+              <div class="form-group">
+                <label class="form-label" for="inputCurrentPass">Current Password</label>
+                <input type="password" class="form-control" id="inputCurrentPass" required placeholder="••••••••••••">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="inputNewPass">New Password (min 8 characters)</label>
+                <input type="password" class="form-control" id="inputNewPass" required minlength="8" placeholder="••••••••••••">
+              </div>
+              <div id="passwordUpdateFeedback" style="margin-bottom: 15px; font-size: 0.85rem;"></div>
+              <button type="submit" class="btn btn-secondary btn-sm">Update Password</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ================= AUTHENTICATION MODAL ================= -->
+  <div class="auth-modal-backdrop" id="authModal" style="display: none;">
+    <div class="auth-card">
+      <button style="position: absolute; top: 18px; right: 20px; background: none; color: var(--slate-light); font-size: 1.5rem; cursor: pointer;" id="btnCloseAuthModal">&times;</button>
+      
+      <!-- Brand in Modal -->
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+        <img src="assets/images/logo-transparent.png" alt="Orion Build Cost" style="height: 36px; width: auto;">
+        <span style="font-family: var(--font-heading); font-weight: 700; color: var(--white); font-size: 1.1rem;">Orion <span style="color:var(--gold-accent);">Client Portal</span></span>
+      </div>
+
+      <!-- Auth Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" data-authtab="signin">Sign In</button>
+        <button class="auth-tab-btn" data-authtab="register">Register</button>
+        <button class="auth-tab-btn" data-authtab="recovery">Password Reset</button>
+      </div>
+
+      <!-- Form Error / Success Banner -->
+      <div id="authAlertBox" style="display: none; padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 16px;"></div>
+
+      <!-- Form 1: Sign In -->
+      <form id="formSignIn">
+        <div class="form-group">
+          <label class="form-label" for="loginEmail">Email Address</label>
+          <input type="email" class="form-control" id="loginEmail" required placeholder="name@company.co.uk">
+        </div>
+        <div class="form-group">
+          <div style="display:flex; justify-content:space-between;">
+            <label class="form-label" for="loginPassword">Password</label>
+            <a href="#" style="font-size:0.75rem; color:var(--gold-accent);" id="linkForgotPass">Forgot?</a>
+          </div>
+          <input type="password" class="form-control" id="loginPassword" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;" id="btnSubmitLogin">Sign In</button>
+      </form>
+
+      <!-- Form 2: Register -->
+      <form id="formRegister" style="display: none;">
+        <div class="form-group">
+          <label class="form-label" for="regFullName">Full Name *</label>
+          <input type="text" class="form-control" id="regFullName" required placeholder="e.g. Sarah Jenkins">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regCompany">Company / Organisation</label>
+          <input type="text" class="form-control" id="regCompany" placeholder="e.g. Apex Developments UK">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regEmail">Email Address *</label>
+          <input type="email" class="form-control" id="regEmail" required placeholder="s.jenkins@apex.co.uk">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regPhone">Telephone</label>
+          <input type="tel" class="form-control" id="regPhone" placeholder="+44 7700 900000">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regPassword">Password * (min 8 chars)</label>
+          <input type="password" class="form-control" id="regPassword" required minlength="8" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;" id="btnSubmitRegister">Create Account</button>
+      </form>
+
+      <!-- Form 3: Recovery -->
+      <form id="formRecovery" style="display: none;">
+        <p style="color: var(--slate-light); font-size: 0.85rem; margin-bottom: 15px;">
+          Enter your registered email address. A secure single-use recovery token will be generated.
+        </p>
+        <div class="form-group">
+          <label class="form-label" for="recEmail">Email Address</label>
+          <input type="email" class="form-control" id="recEmail" required placeholder="name@company.co.uk">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;" id="btnSubmitRecovery">Generate Reset Token</button>
+
+        <div id="resetTokenBox" style="display: none; margin-top: 20px; padding: 14px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+          <div class="form-group">
+            <label class="form-label">Recovery Token</label>
+            <input type="text" class="form-control" id="recTokenVal" readonly>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="recNewPassword">New Password</label>
+            <input type="password" class="form-control" id="recNewPassword" minlength="8" placeholder="New secure password">
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="btnConfirmReset" style="width: 100%;">Set New Password</button>
+        </div>
+      </form>
+
+      <!-- Demo Fill Button Inside Modal -->
+      <div class="demo-credentials-box">
+        <div style="font-weight: 600; margin-bottom: 4px;">⚡ Demo Fast-Track:</div>
+        <div style="margin-bottom: 8px;">Log in as client James Anderson (Apex Developments):</div>
+        <button type="button" class="btn btn-secondary btn-sm" id="btnFillDemoCreds" style="width: 100%; padding: 6px 12px; font-size: 0.8rem;">
+          Use Apex Developments Demo Account
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= NEW PROJECT MODAL ================= -->
+  <div class="auth-modal-backdrop" id="newProjectModal" style="display: none;">
+    <div class="auth-card" style="max-width: 540px;">
+      <button style="position: absolute; top: 18px; right: 20px; background: none; color: var(--slate-light); font-size: 1.5rem; cursor: pointer;" id="btnCloseProjectModal">&times;</button>
+      
+      <h3 style="font-family: var(--font-heading); color: var(--white); margin-bottom: 6px;">Create New Construction Scheme</h3>
+      <p style="color: var(--slate-light); font-size: 0.85rem; margin-bottom: 20px;">Initialise a new scheme to track take-offs, estimates, and BOQ revisions.</p>
+
+      <form id="formNewProject">
+        <div class="form-group">
+          <label class="form-label" for="projTitle">Project Scheme Name *</label>
+          <input type="text" class="form-control" id="projTitle" required placeholder="e.g. Manchester Residential Apartments">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="projType">Project Type *</label>
+          <select class="form-control" id="projType" required>
+            <option value="Residential New Build">Residential New Build</option>
+            <option value="Residential Extension / Renovation">Residential Extension / Renovation</option>
+            <option value="Commercial Office / Fit-Out">Commercial Office / Fit-Out</option>
+            <option value="Commercial Industrial / Warehouse">Commercial Industrial / Warehouse</option>
+            <option value="Mixed-Use Development">Mixed-Use Development</option>
+          </select>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="projLocation">Location (Town / City)</label>
+            <input type="text" class="form-control" id="projLocation" placeholder="e.g. Leeds">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="projPostcode">UK Postcode</label>
+            <input type="text" class="form-control" id="projPostcode" placeholder="e.g. LS1 4DY">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="projArea">Approx. Gross Internal Area (m²)</label>
+            <input type="number" class="form-control" id="projArea" placeholder="e.g. 850" min="10">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="projTier">Specification Level</label>
+            <select class="form-control" id="projTier">
+              <option value="standard">Standard Contractor Spec</option>
+              <option value="premium" selected>Premium Architectural</option>
+              <option value="luxury">Luxury / Bespoke High-End</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 14px;">Create Project Record</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer" style="margin-top: 60px;">
+    <div class="container footer-content">
+      <div class="footer-col">
+        <div class="logo-container" style="margin-bottom: 12px;">
+          <img src="assets/images/logo-transparent.png" alt="Orion Build Cost Logo" class="brand-logo-img">
+        </div>
+        <p style="color:var(--slate-light); font-size:0.85rem; line-height:1.6;">
+          Orion Build Cost provides professional Quantity Surveying, RICS NRM2 compliant cost estimating, and tender pricing for UK builders, contractors, and developers.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4 style="color:var(--white); font-size:1rem; margin-bottom:12px;">Quick Links</h4>
+        <ul style="color:var(--slate-light); font-size:0.85rem; line-height:2;">
+          <li><a href="estimator.html">Cost Estimating Engine</a></li>
+          <li><a href="boq-builder.html">BOQ Builder</a></li>
+          <li><a href="drawing-workspace.html">Drawing Take-Off</a></li>
+          <li><a href="portfolio.html">Case Studies Portfolio</a></li>
+          <li><a href="quote.html">Request a Quote</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 style="color:var(--white); font-size:1rem; margin-bottom:12px;">Security &amp; Compliance</h4>
+        <p style="color:var(--slate-light); font-size:0.85rem; line-height:1.6;">
+          Data is protected with cryptographic encryption. Tenant boundaries are enforced on all private plans and commercial proposals.
+        </p>
+        <div style="margin-top: 10px; color: var(--gold-accent); font-size: 0.8rem;">
+          © 2026 Orion Build Cost Ltd. Registered in England &amp; Wales.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="portal.js"></script>
+</body>
+</html>

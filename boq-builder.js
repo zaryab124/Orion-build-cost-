@@ -48,6 +48,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function loadFromStorage() {
     try {
+      const imported = localStorage.getItem('orion_imported_boq_items');
+      if (imported) {
+        const items = JSON.parse(imported);
+        localStorage.removeItem('orion_imported_boq_items');
+        if (Array.isArray(items) && items.length > 0) {
+          const subtotal = items.reduce((sum, i) => sum + (i.quantity * i.unitRate), 0);
+          const contingencyRate = 0.075;
+          const contingencyAmount = subtotal * contingencyRate;
+          const netTotal = subtotal + contingencyAmount;
+          const vatRate = 0.20;
+          const vatAmount = netTotal * vatRate;
+          const grandTotal = netTotal + vatAmount;
+
+          activeEstimate = {
+            metadata: {
+              projectTypeLabel: 'Drawing Take-Off Import (CAD Measured)',
+              ukCountryLabel: 'England',
+              floorArea: 85,
+              storeys: 1,
+              finishCategory: 'Verified Take-Off'
+            },
+            financials: {
+              subtotal,
+              contingencyRate,
+              contingencyAmount,
+              netTotal,
+              vatRate,
+              vatAmount,
+              grandTotal
+            },
+            items: items.map(i => ({
+              ...i,
+              total: i.quantity * i.unitRate
+            }))
+          };
+          renderReport();
+          return true;
+        }
+      }
+
       const saved = localStorage.getItem('orion_current_estimate');
       if (saved) {
         activeEstimate = JSON.parse(saved);

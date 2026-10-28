@@ -73,7 +73,9 @@ const server = http.createServer(async (req, res) => {
   function sendJson(statusCode, data) {
     res.writeHead(statusCode, {
       'Content-Type': 'application/json; charset=utf-8',
-      'X-Content-Type-Options': 'nosniff'
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'SAMEORIGIN',
+      'Referrer-Policy': 'strict-origin-when-cross-origin'
     });
     res.end(JSON.stringify(data));
   }
@@ -324,7 +326,7 @@ const server = http.createServer(async (req, res) => {
       const enquiriesCount = db.prepare('SELECT COUNT(*) as c FROM enquiries').get().c;
       const projectsCount = db.prepare('SELECT COUNT(*) as c FROM projects').get().c;
       const quotesCount = db.prepare('SELECT COUNT(*) as c FROM quotes').get().c;
-      const usersCount = db.prepare('SELECT COUNT(*) as c FROM users WHERE role = "client"').get().c;
+      const usersCount = db.prepare('SELECT COUNT(*) as c FROM users WHERE role = ?').get('client').c;
 
       const recentEnquiries = db.prepare('SELECT * FROM enquiries ORDER BY id DESC LIMIT 5').all();
       const recentActivity = db.prepare('SELECT * FROM activity_logs ORDER BY id DESC LIMIT 8').all();
@@ -825,7 +827,10 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, {
         'Content-Length': stats.size,
         'Content-Type': contentType,
-        'Accept-Ranges': 'bytes'
+        'Accept-Ranges': 'bytes',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'SAMEORIGIN',
+        'Referrer-Policy': 'strict-origin-when-cross-origin'
       });
       fs.createReadStream(filePath).pipe(res);
     }

@@ -127,4 +127,37 @@ describe('Orion Database & Authentication Unit Tests', () => {
     assert.ok(rowForA, 'Client A can retrieve own project');
     assert.equal(rowForA.title, 'Client A Private Scheme');
   });
+
+  test('bootstrapAdmin creates production administrator with strong password', () => {
+    const adminEmail = `director.${Date.now()}@orionbuildcost.co.uk`;
+    const res = auth.bootstrapAdmin(adminEmail, 'SuperSecureProductionPass2026!', 'Lead Director');
+
+    assert.equal(res.created, true);
+    assert.equal(res.email, adminEmail);
+    assert.ok(res.id > 0);
+
+    // Verify row in database
+    const dbAdmin = db.prepare('SELECT * FROM users WHERE id = ?').get(res.id);
+    assert.ok(dbAdmin);
+    assert.equal(dbAdmin.role, 'admin');
+    assert.equal(dbAdmin.full_name, 'Lead Director');
+    assert.ok(auth.verifyPassword('SuperSecureProductionPass2026!', dbAdmin.password_hash));
+
+    // Calling again with same email returns created: false (idempotent)
+    const idempotentRes = auth.bootstrapAdmin(adminEmail, 'SuperSecureProductionPass2026!');
+    assert.equal(idempotentRes.created, false);
+    assert.equal(idempotentRes.id, res.id);
+  });
+
+  test('bootstrapAdmin rejects passwords shorter than 12 characters', () => {
+    assert.throws(() => {
+      auth.bootstrapAdmin('admin@example.co.uk', 'ShortPass1!');
+    }, /at least 12 characters/);
+  });
+
+  test('bootstrapAdmin rejects invalid email address format', () => {
+    assert.throws(() => {
+      auth.bootstrapAdmin('notanemail', 'SuperSecureProductionPass2026!');
+    }, /Valid administrator email/);
+  });
 });

@@ -11,7 +11,8 @@ const testSuites = [
   'tests/pricing-db.test.js',
   'tests/drawing-takeoff.test.js',
   'tests/database-auth.test.js',
-  'tests/server-api.test.js'
+  'tests/server-api.test.js',
+  'tests/render-simulation.test.js'
 ];
 
 console.log('====================================================');
@@ -43,6 +44,6 @@ console.log('====================================================');
 if (failedCount > 0) {
   process.exit(1);
 } else {
-  console.log('All 6 test suites passed with 100% success rate.');
+  console.log(`All ${passedCount} test suites passed with 100% success rate.`);
   process.exit(0);
 }

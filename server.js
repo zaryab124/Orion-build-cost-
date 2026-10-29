@@ -131,6 +131,18 @@ const server = http.createServer(async (req, res) => {
   }
 
   // =================================================================
+  // HEALTH CHECK ENDPOINT (Render & Container Health Probes)
+  // =================================================================
+  if (req.url === '/api/health' && req.method === 'GET') {
+    return sendJson(200, {
+      status: 'ok',
+      service: 'orion-build-cost',
+      uptime: Math.round(process.uptime()),
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // =================================================================
   // AUTHENTICATION APIS (Phase 6)
   // =================================================================
   if (req.url === '/api/auth/register' && req.method === 'POST') {
@@ -854,8 +866,9 @@ process.on('uncaughtException', (err) => {
 });
 
 if (require.main === module) {
-  server.listen(PORT, () => {
-    console.log(`Orion Build Cost server active on http://localhost:${PORT}/`);
+  const HOST = process.env.HOST || '0.0.0.0';
+  server.listen(PORT, HOST, () => {
+    console.log(`Orion Build Cost server active on http://${HOST}:${PORT}/`);
   });
 }
 

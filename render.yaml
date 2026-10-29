@@ -1,0 +1,45 @@
+# =================================================================
+# Orion Build Cost — Render Infrastructure as Code Blueprint
+# Reference: https://render.com/docs/blueprint-spec
+# =================================================================
+
+services:
+  - type: web
+    name: orion-build-cost
+    runtime: node
+    plan: starter # Persistent disks require Starter plan or above on Render
+    region: frankfurt # Low-latency EU/UK region with GDPR data locality
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    disk:
+      name: orion-data
+      mountPath: /var/data
+      sizeGB: 10
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: PORT
+        value: 10000
+      - key: HOST
+        value: 0.0.0.0
+      - key: ORION_DB_PATH
+        value: /var/data/orion.db
+      - key: ORION_STORAGE_DIR
+        value: /var/data/storage/quotes
+      - key: ORION_DRAWINGS_DIR
+        value: /var/data/storage/drawings
+      - key: ORION_DATA_DIR
+        value: /var/data/quotes
+      - key: ORION_SEED_DEMO_ACCOUNTS
+        value: "false"
+      - key: ORION_SESSION_SECRET
+        generateValue: true
+      - key: ORION_ADMIN_EMAIL
+        sync: false # Set securely in the Render dashboard
+      - key: ORION_ADMIN_PASSWORD
+        sync: false # Set securely in the Render dashboard (min 12 chars)
+      - key: ORION_ADMIN_NAME
+        value: Production Director

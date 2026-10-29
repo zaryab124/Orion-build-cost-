@@ -6,6 +6,12 @@
 const crypto = require('node:crypto');
 const { db } = require('./db.js');
 
+const SESSION_SECRET = process.env.ORION_SESSION_SECRET || 'orion-default-dev-secret-change-in-production';
+
+if (process.env.NODE_ENV === 'production' && (!process.env.ORION_SESSION_SECRET || process.env.ORION_SESSION_SECRET.includes('replace_with'))) {
+  console.warn('[Security Notice] ORION_SESSION_SECRET is unconfigured or using template placeholder. Ensure a unique secret is configured in Render environment variables.');
+}
+
 /**
  * Hash password securely with scrypt and a unique 16-byte random salt
  */
@@ -36,7 +42,8 @@ function verifyPassword(password, stored) {
  * Create a new cryptographic session token valid for 7 days
  */
 function createSession(userId) {
-  const token = crypto.randomBytes(32).toString('hex');
+  const entropy = crypto.randomBytes(32);
+  const token = crypto.createHmac('sha256', SESSION_SECRET).update(entropy).digest('hex');
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
   db.prepare(`
@@ -201,7 +208,8 @@ function createPasswordReset(email) {
     return { success: true, message: 'If an account exists with this email, a reset link has been dispatched.' };
   }
 
-  const token = crypto.randomBytes(24).toString('hex');
+  const entropy = crypto.randomBytes(24);
+  const token = crypto.createHmac('sha256', SESSION_SECRET).update(entropy).digest('hex').substring(0, 48);
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour
 
   db.prepare(`
@@ -243,45 +251,86 @@ function resetPasswordWithToken(token, newPassword) {
 }
 
 /**
- * Seed initial administrative and demo accounts if they do not exist
+ * Bootstrap an administrator account with cryptographic security checks.
+ * Validates email and password constraints without leaking credentials in logs.
+ */
+function bootstrapAdmin(email, password, fullName = 'Production Director') {
+  if (!email || typeof email !== 'string' || !email.includes('@')) {
+    throw new Error('Valid administrator email address is required.');
+  }
+  if (!password || typeof password !== 'string' || password.length < 12) {
+    throw new Error('Production administrator password must be at least 12 characters long.');
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
+  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(cleanEmail);
+
+  if (!existing) {
+    const hash = hashPassword(password);
+    const result = db.prepare(`
+      INSERT INTO users (email, password_hash, role, full_name, company_name)
+      VALUES (?, ?, 'admin', ?, 'Orion Build Cost Ltd')
+    `).run(cleanEmail, hash, fullName);
+    return { created: true, id: result.lastInsertRowid, email: cleanEmail };
+  }
+
+  return { created: false, id: existing.id, email: cleanEmail };
+}
+
+/**
+ * Seed initial administrative and demo accounts if enabled.
+ * In production (NODE_ENV === 'production'), demo accounts are strictly disabled by default
+ * and will only be created if ORION_SEED_DEMO_ACCOUNTS === 'true'.
  */
 function seedInitialUsers() {
-  if (process.env.NODE_ENV === 'production' && process.env.ORION_SEED_DEMO_ACCOUNTS === 'false') {
-    // In production without demo accounts, seed custom production admin if configured
-    if (process.env.ORION_ADMIN_EMAIL && process.env.ORION_ADMIN_PASSWORD) {
-      const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(process.env.ORION_ADMIN_EMAIL);
-      if (!existing) {
-        const hash = hashPassword(process.env.ORION_ADMIN_PASSWORD);
-        db.prepare(`
-          INSERT INTO users (email, password_hash, role, full_name, company_name)
-          VALUES (?, ?, 'admin', 'Production Director', 'Orion Build Cost Ltd')
-        `).run(process.env.ORION_ADMIN_EMAIL, hash);
-      }
+  const isProduction = process.env.NODE_ENV === 'production';
+  const allowDemo = isProduction
+    ? process.env.ORION_SEED_DEMO_ACCOUNTS === 'true'
+    : process.env.ORION_SEED_DEMO_ACCOUNTS !== 'false';
+
+  // 1. Production administrator bootstrap via environment variables
+  if (process.env.ORION_ADMIN_EMAIL && process.env.ORION_ADMIN_PASSWORD) {
+    try {
+      bootstrapAdmin(
+        process.env.ORION_ADMIN_EMAIL,
+        process.env.ORION_ADMIN_PASSWORD,
+        process.env.ORION_ADMIN_NAME || 'Production Director'
+      );
+    } catch (err) {
+      console.error('[Bootstrap Error] Failed to configure production administrator:', err.message);
+    }
+  }
+
+  // 2. If in production and demo seeding is not explicitly allowed, do not seed demo accounts
+  if (!allowDemo) {
+    const adminCheck = db.prepare('SELECT COUNT(*) as count FROM users WHERE role = ?').get('admin');
+    if (adminCheck && adminCheck.count === 0) {
+      console.warn('[Bootstrap Notice] No administrator accounts exist. Set ORION_ADMIN_EMAIL and ORION_ADMIN_PASSWORD in environment to provision initial access.');
     }
     return;
   }
 
-  const adminEmail = process.env.ORION_ADMIN_EMAIL || 'admin@orionbuildcost.co.uk';
-  const existingAdmin = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
+  // 3. Controlled development / demo environment seeding
+  const demoAdminEmail = 'admin@orionbuildcost.co.uk';
+  const existingAdmin = db.prepare('SELECT id FROM users WHERE email = ?').get(demoAdminEmail);
 
   if (!existingAdmin) {
-    const adminPass = process.env.ORION_ADMIN_PASSWORD || 'OrionAdmin2026!';
-    const adminHash = hashPassword(adminPass);
+    const adminHash = hashPassword('OrionAdmin2026!');
     db.prepare(`
       INSERT INTO users (email, password_hash, role, full_name, company_name, phone)
       VALUES (?, ?, 'admin', 'Orion Senior Director', 'Orion Build Cost Ltd', '+44 20 7946 0850')
-    `).run(adminEmail, adminHash);
+    `).run(demoAdminEmail, adminHash);
   }
 
-  const clientEmail = 'client@apexdevelopments.co.uk';
-  const existingClient = db.prepare('SELECT id FROM users WHERE email = ?').get(clientEmail);
+  const demoClientEmail = 'client@apexdevelopments.co.uk';
+  const existingClient = db.prepare('SELECT id FROM users WHERE email = ?').get(demoClientEmail);
 
   if (!existingClient) {
     const clientHash = hashPassword('ApexClient2026!');
     const clientResult = db.prepare(`
       INSERT INTO users (email, password_hash, role, full_name, company_name, phone)
       VALUES (?, ?, 'client', 'James Anderson', 'Apex Developments UK', '+44 7700 900077')
-    `).run(clientEmail, clientHash);
+    `).run(demoClientEmail, clientHash);
 
     const clientId = clientResult.lastInsertRowid;
 
@@ -313,5 +362,7 @@ module.exports = {
   registerUser,
   loginUser,
   createPasswordReset,
-  resetPasswordWithToken
+  resetPasswordWithToken,
+  bootstrapAdmin,
+  seedInitialUsers
 };

@@ -7,10 +7,9 @@ const { DatabaseSync } = require('node:sqlite');
 const path = require('path');
 const fs = require('fs');
 
-const DATA_DIR = path.join(__dirname, 'data');
-fs.mkdirSync(DATA_DIR, { recursive: true });
-
-const DB_PATH = process.env.ORION_DB_PATH || path.join(DATA_DIR, 'orion.db');
+const DB_PATH = process.env.ORION_DB_PATH || path.join(__dirname, 'data', 'orion.db');
+// Ensure parent directory exists before opening SQLite database
+fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 const db = new DatabaseSync(DB_PATH);
 
 // Enable WAL mode, busy timeout, and foreign key constraints for integrity and performance

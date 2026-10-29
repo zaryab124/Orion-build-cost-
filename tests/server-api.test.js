@@ -200,4 +200,19 @@ describe('Orion Server Backend API Tests', () => {
     assert.ok(res.headers['content-type'].includes('text/csv'));
     assert.ok(res.bodyText.includes('ORION BUILD COST - BILL OF QUANTITIES'));
   });
+  test('GET /api/health returns 200 OK with service status, uptime, and timestamp', async () => {
+    const res = await makeRequest({
+      hostname: 'localhost',
+      port: TEST_PORT,
+      path: '/api/health',
+      method: 'GET'
+    });
+
+    assert.equal(res.statusCode, 200);
+    assert.ok(res.json);
+    assert.equal(res.json.status, 'ok');
+    assert.equal(res.json.service, 'orion-build-cost');
+    assert.ok(typeof res.json.uptime === 'number');
+    assert.ok(res.json.timestamp);
+  });
 });
